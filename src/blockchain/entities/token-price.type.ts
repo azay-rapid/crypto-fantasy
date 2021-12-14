@@ -5,5 +5,5 @@ export class TokenPrice {
   address: string;
 
   @Column()
-  price: number;
+  price: string;
 }

@@ -36,7 +36,7 @@ export class BlockchainService {
     this.myContract.events
       .poolCreated(options)
       .on('data', async (event) => {
-        console.log(event);
+        console.log(event.returnValues);
         //save the event to db
         const {
           poolID,
@@ -48,8 +48,8 @@ export class BlockchainService {
         } = event.returnValues;
 
         const pool = this.poolRepository.create({
-          poolID,
-          tierCount,
+          poolID: parseInt(poolID),
+          tierCount: parseInt(tierCount),
           entryFees,
           startTime,
           endTime,
@@ -192,13 +192,14 @@ export class BlockchainService {
     //format poolOpenPrice and poolClosePrice
     const openPrice = {};
     pool.openPrice.forEach((item) => {
-      openPrice[item.address] = item.price;
+      openPrice[item.address.toLowerCase()] = item.price;
     });
     const closePrice = {};
     pool.closePrice.forEach((item) => {
-      closePrice[item.address] = item.price;
+      closePrice[item.address.toLowerCase()] = item.price;
     });
-
+    console.log('open', openPrice);
+    console.log('close', closePrice);
     //get all the participants of the pool
     const all = await this.enteredPoolRepository.find({ poolID });
     if (all.length === 0) return;
@@ -213,25 +214,29 @@ export class BlockchainService {
         ),
       };
     });
-
     //sort them in descending order of their score
     participants.sort((a, b) => b.score - a.score);
+    console.log('participants', participants);
 
     //distribute price among the top players and return the winners
     const winners = this.distributePrice(
       participants,
       participants.length * pool.entryFees[0],
     );
-
+    console.log('winners', winners);
     // save them to DB
     await this.poolRepository.update({ poolID }, { winners });
   }
 
   calculateScore(addresses, poolOpenPrice, poolClosePrice) {
     let score = 0;
-    addresses.forEach((address) => {
-      score += poolOpenPrice[address] - poolClosePrice[address];
-    });
+    console.log(addresses, Object.keys(poolOpenPrice));
+    for (let i = 0; i < 10; ++i) {
+      score += Number(
+        BigInt(poolOpenPrice[addresses[i]]) -
+          BigInt(poolClosePrice[addresses[i]]),
+      );
+    }
 
     return score;
   }
@@ -253,9 +258,9 @@ export class BlockchainService {
 
     const distribute = (prices) => {
       const winners = [];
-      for (let i = 0; i < prices.length || i < 10; ++i) {
+      for (let i = 0; i < prices.length && i < 10; ++i) {
         winners.push({
-          user: participants[i].user,
+          ...participants[i],
           amount: totalPoolAmount * prices[i],
         });
       }
@@ -263,7 +268,7 @@ export class BlockchainService {
       for (let i = 10; i < prices.length; ++i) {
         for (let k = 0; k < 10; ++k) {
           winners.push({
-            user: participants[j].user,
+            ...participants[j],
             amount: totalPoolAmount * prices[i],
           });
           ++j;
@@ -272,7 +277,7 @@ export class BlockchainService {
 
       return winners;
     };
-
+    console.log('len', participants.length);
     if (participants.length > 800) {
       return distribute(priceShare[9]);
     } else if (participants.length > 600) {
@@ -290,6 +295,7 @@ export class BlockchainService {
     } else if (participants.length > 30) {
       return distribute(priceShare[2]);
     } else if (participants.length >= 3) {
+      console.log('pshare', priceShare[1]);
       return distribute(priceShare[1]);
     } else if (participants.length == 1) {
       return [
