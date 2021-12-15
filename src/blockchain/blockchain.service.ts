@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ABI, AggregatorV3InterfaceABI } from './blockchain.abi';
 import { CronJob } from 'cron';
 import { TokensData } from './tokens-list.data';
@@ -7,6 +11,8 @@ import { Pool } from './entities/pool.entity';
 import { Repository } from 'typeorm';
 import { EnteredPool } from './entities/entered-pool.entity';
 import { TokenPrice } from './entities/token-price.type';
+import { ConfigService } from '@nestjs/config';
+import { Winner } from './entities/winners.type';
 const Web3 = require('web3');
 
 @Injectable()
@@ -19,11 +25,10 @@ export class BlockchainService {
     @InjectRepository(Pool) private poolRepository: Repository<Pool>,
     @InjectRepository(EnteredPool)
     private enteredPoolRepository: Repository<EnteredPool>,
+    private configService: ConfigService,
   ) {
-    this.web3 = new Web3(
-      'wss://speedy-nodes-nyc.moralis.io/593cb6b743abad211497ad94/bsc/testnet/ws',
-    );
-    this.CONTRACT_ADDRESS = '0x8360165c5076Ee1F8f0834c43B31D1096c7B9597';
+    this.web3 = new Web3(this.configService.get('WEB3_WSS_PROVIDER'));
+    this.CONTRACT_ADDRESS = this.configService.get('CONTRACT_ADDRESS');
     this.myContract = new this.web3.eth.Contract(ABI, this.CONTRACT_ADDRESS);
     const options = {
       filter: {
@@ -104,10 +109,10 @@ export class BlockchainService {
       .enteredPool(options)
       .on('data', async (event) => {
         const { user, aggregatorAddress, poolID, tier } = event.returnValues;
-
+        const addr = aggregatorAddress.map((addr) => addr.toLowerCase());
         const enteredPool = this.enteredPoolRepository.create({
           user,
-          aggregatorAddress,
+          aggregatorAddress: addr,
           poolID,
           tier,
         });
@@ -163,7 +168,7 @@ export class BlockchainService {
   }
 
   async getCurrentTokenPrices() {
-    const web3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/');
+    const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
     const prices: TokenPrice[] = [];
     for (let i = 0; i < TokensData.Aggregator.length; i++) {
       const priceFeed = new web3.eth.Contract(
@@ -174,10 +179,11 @@ export class BlockchainService {
       await priceFeed.methods
         .latestRoundData()
         .call()
-        .then((priceData) => {
+        .then(async (priceData) => {
           prices.push({
-            address: TokensData.Aggregator[i].address,
+            address: TokensData.Aggregator[i].address.toLowerCase(),
             price: priceData[1],
+            decimals: await priceFeed.methods.decimals().call(),
           });
         });
     }
@@ -198,8 +204,7 @@ export class BlockchainService {
     pool.closePrice.forEach((item) => {
       closePrice[item.address.toLowerCase()] = item.price;
     });
-    console.log('open', openPrice);
-    console.log('close', closePrice);
+
     //get all the participants of the pool
     const all = await this.enteredPoolRepository.find({ poolID });
     if (all.length === 0) return;
@@ -216,28 +221,24 @@ export class BlockchainService {
     });
     //sort them in descending order of their score
     participants.sort((a, b) => b.score - a.score);
-    console.log('participants', participants);
 
     //distribute price among the top players and return the winners
     const winners = this.distributePrice(
       participants,
       participants.length * pool.entryFees[0],
     );
-    console.log('winners', winners);
     // save them to DB
     await this.poolRepository.update({ poolID }, { winners });
   }
 
   calculateScore(addresses, poolOpenPrice, poolClosePrice) {
     let score = 0;
-    console.log(addresses, Object.keys(poolOpenPrice));
     for (let i = 0; i < 10; ++i) {
-      score += Number(
-        BigInt(poolOpenPrice[addresses[i]]) -
-          BigInt(poolClosePrice[addresses[i]]),
-      );
+      const a = BigInt(poolOpenPrice[addresses[i]]);
+      const b = BigInt(poolClosePrice[addresses[i]]);
+      const c = BigInt(1000000);
+      score += Number(((b - a) * c) / a);
     }
-
     return score;
   }
 
@@ -261,7 +262,7 @@ export class BlockchainService {
       for (let i = 0; i < prices.length && i < 10; ++i) {
         winners.push({
           ...participants[i],
-          amount: totalPoolAmount * prices[i],
+          amount: (totalPoolAmount * prices[i]) / 100,
         });
       }
       let j = 10;
@@ -269,7 +270,7 @@ export class BlockchainService {
         for (let k = 0; k < 10; ++k) {
           winners.push({
             ...participants[j],
-            amount: totalPoolAmount * prices[i],
+            amount: (totalPoolAmount * prices[i]) / 100,
           });
           ++j;
         }
@@ -277,7 +278,6 @@ export class BlockchainService {
 
       return winners;
     };
-    console.log('len', participants.length);
     if (participants.length > 800) {
       return distribute(priceShare[9]);
     } else if (participants.length > 600) {
@@ -295,7 +295,6 @@ export class BlockchainService {
     } else if (participants.length > 30) {
       return distribute(priceShare[2]);
     } else if (participants.length >= 3) {
-      console.log('pshare', priceShare[1]);
       return distribute(priceShare[1]);
     } else if (participants.length == 1) {
       return [
@@ -307,5 +306,27 @@ export class BlockchainService {
     }
 
     return distribute(priceShare[0]);
+  }
+
+  async transactBalance(poolID: number, winnerList: Winner[]) {
+    const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
+    const account = '0x9FE35Ded40255Db7043500507a625DC346658Efa'; //Your account address
+    const privateKey = this.configService.get('ETH_PRIVATE_KEY');
+    const contractAddress = this.configService.get('CONTRACT_ADDRESS'); // Deployed manually
+    const contract = new web3.eth.Contract(ABI, contractAddress, {
+      from: account,
+      gasLimit: 3000000,
+    });
+    const winner = winnerList.map((item) => item.user);
+    const amount = winnerList.map((item) => item.amount);
+
+    //new script
+    const { address } = web3.eth.accounts.wallet.add(privateKey);
+
+    const tx = await contract.methods
+      .distributeReward(poolID, winner, amount)
+      .send({
+        from: address,
+      });
   }
 }

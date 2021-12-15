@@ -6,4 +6,7 @@ export class TokenPrice {
 
   @Column()
   price: string;
+
+  @Column()
+  decimals: number;
 }
