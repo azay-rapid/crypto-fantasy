@@ -329,4 +329,56 @@ export class BlockchainService {
         from: address,
       });
   }
+
+  async leaderboardCalculator(poolID: number) {
+    const pool = await this.poolRepository.findOne({ poolID });
+    console.log(pool);
+    if (!pool) {
+      throw new NotFoundException('Sorry! Pool not Found');
+    }
+    const { openPrice, winners } = pool;
+
+    //pool ended
+    if (winners.length > 0) {
+      return winners;
+    }
+    //pool not yet started
+    if (openPrice.length <= 0) {
+      throw new BadRequestException('Pool Not yet started!');
+    }
+
+    const all = await this.enteredPoolRepository.find({ poolID });
+
+    //if no participants return
+    if (all.length <= 0) {
+      return {};
+    }
+
+    const openTokenRate = {};
+    openPrice.forEach((tokenRate) => {
+      openTokenRate[tokenRate.address.toLowerCase()] = tokenRate.price;
+    });
+
+    const currentPrice = await this.getCurrentTokenPrices();
+    const currentTokenRate = {};
+    currentPrice.forEach((tokenRate) => {
+      currentTokenRate[tokenRate.address.toLowerCase()] = tokenRate.price;
+    });
+
+    //claculate the score/points of the participants
+    const participants = all.map((participant) => {
+      return {
+        user: participant.user,
+        score: this.calculateScore(
+          participant.aggregatorAddress,
+          openTokenRate,
+          currentTokenRate,
+        ),
+      };
+    });
+    //sort them in descending order of their score
+    participants.sort((a, b) => b.score - a.score);
+
+    return participants;
+  }
 }
