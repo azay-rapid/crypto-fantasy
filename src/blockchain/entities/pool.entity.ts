@@ -11,10 +11,7 @@ export class Pool {
   poolID: number;
 
   @Column()
-  tierCount: number;
-
-  @Column()
-  entryFees: number[];
+  entryFees: number;
 
   @Column()
   tokenAddress: string;

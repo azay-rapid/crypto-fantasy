@@ -13,7 +13,4 @@ export class EnteredPool {
 
   @Column()
   aggregatorAddress: string[];
-
-  @Column()
-  tier: number;
 }

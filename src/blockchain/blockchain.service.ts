@@ -43,19 +43,12 @@ export class BlockchainService {
       .on('data', async (event) => {
         console.log(event.returnValues);
         //save the event to db
-        const {
-          poolID,
-          tierCount,
-          entryFees,
-          startTime,
-          endTime,
-          tokenAddress,
-        } = event.returnValues;
+        const { poolID, entryFees, startTime, endTime, tokenAddress } =
+          event.returnValues;
 
         const pool = this.poolRepository.create({
           poolID: parseInt(poolID),
-          tierCount: parseInt(tierCount),
-          entryFees,
+          entryFees: parseInt(entryFees),
           startTime,
           endTime,
           tokenAddress,
@@ -63,7 +56,6 @@ export class BlockchainService {
           closePrice: [],
           winners: [],
         });
-
         await this.poolRepository.save(pool);
 
         //start time
@@ -108,13 +100,12 @@ export class BlockchainService {
     this.myContract.events
       .enteredPool(options)
       .on('data', async (event) => {
-        const { user, aggregatorAddress, poolID, tier } = event.returnValues;
+        const { user, aggregatorAddress, poolID } = event.returnValues;
         const addr = aggregatorAddress.map((addr) => addr.toLowerCase());
         const enteredPool = this.enteredPoolRepository.create({
           user,
           aggregatorAddress: addr,
-          poolID,
-          tier,
+          poolID: parseInt(poolID),
         });
 
         await this.enteredPoolRepository.save(enteredPool);
@@ -225,17 +216,18 @@ export class BlockchainService {
     //distribute price among the top players and return the winners
     const winners = this.distributePrice(
       participants,
-      participants.length * pool.entryFees[0],
+      participants.length * pool.entryFees,
     );
     // save them to DB
     await this.poolRepository.update({ poolID }, { winners });
+    await this.transactBalance(poolID, winners);
   }
 
   calculateScore(addresses, poolOpenPrice, poolClosePrice) {
     let score = 0;
     for (let i = 0; i < 10; ++i) {
-      const a = BigInt(poolOpenPrice[addresses[i]]);
-      const b = BigInt(poolClosePrice[addresses[i]]);
+      const a = BigInt(poolOpenPrice[addresses[i].toLowerCase()]);
+      const b = BigInt(poolClosePrice[addresses[i].toLowerCase()]);
       const c = BigInt(1000000);
       score += Number(((b - a) * c) / a);
     }
@@ -310,29 +302,24 @@ export class BlockchainService {
 
   async transactBalance(poolID: number, winnerList: Winner[]) {
     const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
-    const account = '0x9FE35Ded40255Db7043500507a625DC346658Efa'; //Your account address
+    const account = '0x7338860D9D43645a56ad9f9E530fA31602aafb7A'; //Your account address
     const privateKey = this.configService.get('ETH_PRIVATE_KEY');
     const contractAddress = this.configService.get('CONTRACT_ADDRESS'); // Deployed manually
     const contract = new web3.eth.Contract(ABI, contractAddress, {
       from: account,
       gasLimit: 3000000,
     });
-    const winner = winnerList.map((item) => item.user);
-    const amount = winnerList.map((item) => item.amount);
-
+    const winner = winnerList.map((item) => item.user.toString());
+    const amount = winnerList.map((item) => item.amount.toString());
     //new script
     const { address } = web3.eth.accounts.wallet.add(privateKey);
-
-    const tx = await contract.methods
-      .distributeReward(poolID, winner, amount)
-      .send({
-        from: address,
-      });
+    const tx = await contract.methods.setWinner(poolID, winner, amount).send({
+      from: address,
+    });
   }
 
   async leaderboardCalculator(poolID: number) {
     const pool = await this.poolRepository.findOne({ poolID });
-    console.log(pool);
     if (!pool) {
       throw new NotFoundException('Sorry! Pool not Found');
     }

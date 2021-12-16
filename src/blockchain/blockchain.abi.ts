@@ -2,64 +2,23 @@ export const ABI = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'tierCount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'entryFees',
-        type: 'uint256[]',
-      },
-      {
         internalType: 'address',
-        name: '_tokenAddress',
+        name: 'auth',
         type: 'address',
       },
       {
         internalType: 'uint256',
-        name: '_startTime',
+        name: '_minimumTokenBalance',
         type: 'uint256',
       },
-      {
-        internalType: 'uint256',
-        name: '_endTime',
-        type: 'uint256',
-      },
-    ],
-    name: 'createPool',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_poolID',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address[]',
-        name: 'winner',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'amount',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'distributeReward',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
       {
         internalType: 'address',
-        name: 'auth',
+        name: '_robodogeToken',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_roboDogeStaking',
         type: 'address',
       },
     ],
@@ -106,38 +65,9 @@ export const ABI = [
         name: 'aggregatorAddress',
         type: 'address[10]',
       },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'tier',
-        type: 'uint256',
-      },
     ],
     name: 'enteredPool',
     type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_poolID',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address[10]',
-        name: '_aggregatorAddress',
-        type: 'address[10]',
-      },
-      {
-        internalType: 'uint256',
-        name: 'tier',
-        type: 'uint256',
-      },
-    ],
-    name: 'enterPool',
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
   },
   {
     anonymous: false,
@@ -151,14 +81,8 @@ export const ABI = [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'tierCount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256[]',
         name: 'entryFees',
-        type: 'uint256[]',
+        type: 'uint256',
       },
       {
         indexed: false,
@@ -181,13 +105,6 @@ export const ABI = [
     ],
     name: 'poolCreated',
     type: 'event',
-  },
-  {
-    inputs: [],
-    name: 'renounceOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
   },
   {
     anonymous: false,
@@ -215,32 +132,6 @@ export const ABI = [
     type: 'event',
   },
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_auth',
-        type: 'address',
-      },
-    ],
-    name: 'setAuth',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'AuthAddress',
     outputs: [
@@ -260,15 +151,98 @@ export const ABI = [
         name: '_poolID',
         type: 'uint256',
       },
+      {
+        internalType: 'uint256',
+        name: 'position',
+        type: 'uint256',
+      },
+    ],
+    name: 'claimReward',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'entryFees',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_tokenAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_startTime',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_endTime',
+        type: 'uint256',
+      },
+    ],
+    name: 'createPool',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_poolID',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address[10]',
+        name: '_aggregatorAddress',
+        type: 'address[10]',
+      },
+    ],
+    name: 'enterPool',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'feeAmount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_poolID',
+        type: 'uint256',
+      },
     ],
     name: 'getPoolInfo',
     outputs: [
       {
         components: [
           {
-            internalType: 'uint256[]',
+            internalType: 'uint256',
             name: 'entryFee',
-            type: 'uint256[]',
+            type: 'uint256',
           },
           {
             internalType: 'address',
@@ -286,17 +260,12 @@ export const ABI = [
             type: 'uint256',
           },
           {
-            internalType: 'uint256',
-            name: 'tier',
-            type: 'uint256',
-          },
-          {
             internalType: 'address[]',
             name: 'userAddress',
             type: 'address[]',
           },
         ],
-        internalType: 'struct RoboDogeCryptoFantasy.pool',
+        internalType: 'struct FantasyCrypto.pool',
         name: '',
         type: 'tuple',
       },
@@ -326,15 +295,23 @@ export const ABI = [
             name: 'aggregatorAddresses',
             type: 'address[10]',
           },
-          {
-            internalType: 'uint256',
-            name: 'tier',
-            type: 'uint256',
-          },
         ],
-        internalType: 'struct RoboDogeCryptoFantasy.userDetails',
+        internalType: 'struct FantasyCrypto.userDetails',
         name: '',
         type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'minimumTokenBalance',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -377,6 +354,11 @@ export const ABI = [
     name: 'pools',
     outputs: [
       {
+        internalType: 'uint256',
+        name: 'entryFee',
+        type: 'uint256',
+      },
+      {
         internalType: 'address',
         name: 'tokenAddress',
         type: 'address',
@@ -391,37 +373,77 @@ export const ABI = [
         name: 'endTime',
         type: 'uint256',
       },
-      {
-        internalType: 'uint256',
-        name: 'tier',
-        type: 'uint256',
-      },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_auth',
+        type: 'address',
+      },
+    ],
+    name: 'setAuth',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
       {
         internalType: 'uint256',
-        name: '',
+        name: '_poolID',
         type: 'uint256',
       },
       {
+        internalType: 'address[]',
+        name: 'winners',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'amount',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'setWinner',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_minimumTokenBalance',
+        type: 'uint256',
+      },
+    ],
+    name: 'setminimumTokenBalance',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
-        name: '',
+        name: 'newOwner',
         type: 'address',
       },
     ],
-    name: 'userSelection',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'tier',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -440,6 +462,19 @@ export const ABI = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'tokenAddress',
+        type: 'address',
+      },
+    ],
+    name: 'withdrawFees',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ];
