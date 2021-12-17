@@ -10,15 +10,15 @@ jobs:
     steps:
     - name: Checkout the code
       uses: actions/checkout@v1
-    - name: Deploy to my EC2 instance
-      uses: easingthemes/ssh-deploy@v2.1.5
+   # - name: Deploy to my EC2 instance
+    #  uses: easingthemes/ssh-deploy@v2.1.5
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_KEYS }}
         REMOTE_HOST: "3.67.87.104"
         REMOTE_USER: "ubuntu"
         TARGET: "/home/ubuntu/"
     - run: pwd
-    - run: sudo cp /home/ubuntu/Dockerfile ./
+    - run: sudo cp /home/ubuntu/env/.env ./
     - run: ls
     - name: Run build
       run: |
