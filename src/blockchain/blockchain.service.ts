@@ -49,8 +49,8 @@ export class BlockchainService {
         const pool = this.poolRepository.create({
           poolID: parseInt(poolID),
           entryFees: parseInt(entryFees),
-          startTime,
-          endTime,
+          startTime: parseInt(startTime),
+          endTime: parseInt(endTime),
           tokenAddress,
           openPrice: [],
           closePrice: [],
@@ -367,5 +367,53 @@ export class BlockchainService {
     participants.sort((a, b) => b.score - a.score);
 
     return participants;
+  }
+
+  async getEndedPools() {
+    const currTime = Math.floor(Date.now() / 1000);
+    const pools = await this.poolRepository.find({
+      where: { endTime: { $lt: currTime } },
+      select: [
+        'poolID',
+        'entryFees',
+        'startTime',
+        'endTime',
+        'winners',
+        'tokenAddress',
+      ],
+    });
+    return pools;
+  }
+
+  async getUpcomingPools() {
+    const currTime = Math.floor(Date.now() / 1000);
+    const pools = await this.poolRepository.find({
+      where: { startTime: { $gt: currTime } },
+      select: ['poolID', 'entryFees', 'startTime', 'endTime', 'tokenAddress'],
+    });
+    return pools;
+  }
+
+  async getActivePools() {
+    const currTime = Math.floor(Date.now() / 1000);
+    const pools = await this.poolRepository.find({
+      where: {
+        $and: [
+          { startTime: { $lt: currTime } },
+          { endTime: { $gt: currTime } },
+          { 'openPrice.1': { $exists: true } },
+        ],
+      },
+      select: [
+        'poolID',
+        'entryFees',
+        'tokenAddress',
+        'startTime',
+        'endTime',
+        'openPrice',
+      ],
+    });
+
+    return pools;
   }
 }

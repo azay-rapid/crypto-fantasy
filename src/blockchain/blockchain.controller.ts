@@ -8,4 +8,19 @@ export class BlockchainController {
   leaderboards(@Param('poolID') poolID) {
     return this.blockchainService.leaderboardCalculator(parseInt(poolID));
   }
+
+  @Get('/ended-pools')
+  endedPools() {
+    return this.blockchainService.getEndedPools();
+  }
+
+  @Get('/upcoming-pools')
+  upcomingPools() {
+    return this.blockchainService.getUpcomingPools();
+  }
+
+  @Get('/active-pools')
+  activePools() {
+    return this.blockchainService.getActivePools();
+  }
 }
