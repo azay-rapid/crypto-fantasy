@@ -154,7 +154,7 @@ export class BlockchainService {
 
   async endCallback(endJob, pool) {
     const closePrice = await this.getCurrentTokenPrices();
-    this.poolRepository.update({ poolID: pool.poolID }, { closePrice });
+    await this.poolRepository.update({ poolID: pool.poolID }, { closePrice });
     endJob.stop();
   }
 
