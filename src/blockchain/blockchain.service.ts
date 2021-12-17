@@ -416,4 +416,8 @@ export class BlockchainService {
 
     return pools;
   }
+
+  getTokensData() {
+    return TokensData;
+  }
 }

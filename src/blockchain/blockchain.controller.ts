@@ -23,4 +23,9 @@ export class BlockchainController {
   activePools() {
     return this.blockchainService.getActivePools();
   }
+
+  @Get('/tokens')
+  tokens() {
+    return this.blockchainService.getTokensData();
+  }
 }
