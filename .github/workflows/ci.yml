@@ -1,0 +1,29 @@
+name: Push-to-EC2
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  node:
+    runs-on:  self-hosted
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v1
+    - name: Deploy to my EC2 instance
+      uses: easingthemes/ssh-deploy@v2.1.5
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_KEYS }}
+        REMOTE_HOST: "3.67.87.104"
+        REMOTE_USER: "ubuntu"
+        TARGET: "/home/ubuntu/"
+    - run: pwd
+    - run: sudo cp /home/ubuntu/Dockerfile ./
+    - run: ls
+    - name: Run build
+      run: |
+        sudo docker stop robodoge || true
+        sudo docker rm robodoge  || true
+        sudo docker rmi robodoge  || true
+        sudo docker build -t robodoge .
+        sudo docker run --name robodoge -d -p 3000:3000 robodoge   
