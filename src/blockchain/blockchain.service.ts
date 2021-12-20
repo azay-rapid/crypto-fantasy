@@ -71,11 +71,12 @@ export class BlockchainService {
           winners: [],
         });
         await this.poolRepository.save(pool);
-
+        console.log(new Date(parseInt(event.returnValues.startTime) * 1000));
         //start time
         const start = this.cronDateFormatter(
           new Date(parseInt(event.returnValues.startTime) * 1000),
         );
+        console.log(new Date(parseInt(event.returnValues.endTime) * 1000));
         //end time
         const end = this.cronDateFormatter(
           new Date(parseInt(event.returnValues.endTime) * 1000),
@@ -161,12 +162,14 @@ export class BlockchainService {
   }
 
   async startCallback(startJob, pool) {
+    console.log('here stasrt');
     const openPrice = await this.getCurrentTokenPrices();
-    this.poolRepository.update({ poolID: pool.poolID }, { openPrice });
+    await this.poolRepository.update({ poolID: pool.poolID }, { openPrice });
     startJob.stop();
   }
 
   async endCallback(endJob, pool) {
+    console.log('here end');
     const closePrice = await this.getCurrentTokenPrices();
     await this.poolRepository.update({ poolID: pool.poolID }, { closePrice });
     endJob.stop();
