@@ -27,7 +27,21 @@ export class BlockchainService {
     private enteredPoolRepository: Repository<EnteredPool>,
     private configService: ConfigService,
   ) {
-    this.web3 = new Web3(this.configService.get('WEB3_WSS_PROVIDER'));
+    const reconnectOptions = {
+      // Enable auto reconnection
+      reconnect: {
+        auto: true,
+        delay: 5000, // ms
+        maxAttempts: 5,
+        onTimeout: false,
+      },
+    };
+
+    const ws = new Web3.providers.WebsocketProvider(
+      this.configService.get('WEB3_WSS_PROVIDER'),
+      reconnectOptions,
+    );
+    this.web3 = new Web3(ws);
     this.CONTRACT_ADDRESS = this.configService.get('CONTRACT_ADDRESS');
     this.myContract = new this.web3.eth.Contract(ABI, this.CONTRACT_ADDRESS);
     const options = {

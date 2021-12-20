@@ -11,7 +11,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mongodb',
-      url: 'mongodb+srv://cryptofantasy:example@cluster0.944gs.mongodb.net/cryptofantasy?retryWrites=true&w=majority',
+      url: 'mongodb+srv://crypto:example@cluster0.944gs.mongodb.net/cryptofantasy?retryWrites=true&w=majority',
       synchronize: true,
       useUnifiedTopology: true,
       entities: [Pool, EnteredPool],
