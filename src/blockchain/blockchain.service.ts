@@ -32,7 +32,7 @@ export class BlockchainService {
       reconnect: {
         auto: true,
         delay: 5000, // ms
-        maxAttempts: 5,
+        maxAttempts: 500,
         onTimeout: false,
       },
     };
