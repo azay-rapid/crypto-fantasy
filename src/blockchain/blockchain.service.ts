@@ -110,7 +110,7 @@ export class BlockchainService {
 
         await this.enteredPoolRepository.save(enteredPool);
       })
-      .on('changed', (changed) => console.log('changed', changed))
+      .on('changed', (changed) => console.log(changed))
       .on('error', (err) => {
         throw err;
       });
