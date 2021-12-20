@@ -76,12 +76,13 @@ export class BlockchainService {
         const start = this.cronDateFormatter(
           new Date(parseInt(event.returnValues.startTime) * 1000),
         );
+        console.log(start);
         console.log(new Date(parseInt(event.returnValues.endTime) * 1000));
         //end time
         const end = this.cronDateFormatter(
           new Date(parseInt(event.returnValues.endTime) * 1000),
         );
-
+        console.log(end);
         const startJob = new CronJob(
           start,
           () => {
