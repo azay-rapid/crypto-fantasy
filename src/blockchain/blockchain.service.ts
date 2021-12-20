@@ -84,7 +84,7 @@ export class BlockchainService {
         );
         console.log(end);
         const startJob = new CronJob(
-          start,
+          new Date(parseInt(event.returnValues.startTime) * 1000),
           () => {
             this.startCallback(startJob, pool);
           },
@@ -94,7 +94,7 @@ export class BlockchainService {
         );
 
         const endJob = new CronJob(
-          end,
+          new Date(parseInt(event.returnValues.endTime) * 1000),
           async () => {
             await this.endCallback(endJob, pool);
             await this.computeWinners(pool.poolID);
