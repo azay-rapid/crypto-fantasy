@@ -9,6 +9,11 @@ export class BlockchainController {
     return this.blockchainService.leaderboardCalculator(parseInt(poolID));
   }
 
+  @Get('/winners/:poolID')
+  winners(@Param('poolID') poolID) {
+    return this.blockchainService.getWinners(parseInt(poolID));
+  }
+
   @Get('/ended-pools')
   endedPools() {
     return this.blockchainService.getEndedPools();

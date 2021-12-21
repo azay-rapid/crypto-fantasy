@@ -31,9 +31,9 @@ export class BlockchainService {
       // Enable auto reconnection
       reconnect: {
         auto: true,
-        delay: 2000, // ms
-        maxAttempts: 500,
-        onTimeout: false,
+        delay: 5000, // ms
+        maxAttempts: 9999999999,
+        onTimeout: true,
       },
     };
 
@@ -405,5 +405,20 @@ export class BlockchainService {
 
   getTokensData() {
     return TokensData;
+  }
+
+  async getWinners(poolID) {
+    const pool = await this.poolRepository.findOne({ poolID });
+    if (!pool) {
+      return {
+        message: 'Invalid Pool Id',
+      };
+    }
+    if (pool.closePrice.length === 0) {
+      return {
+        message: 'Pool not yet ended!',
+      };
+    }
+    return pool.winners;
   }
 }
