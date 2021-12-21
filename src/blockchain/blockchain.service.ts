@@ -299,9 +299,13 @@ export class BlockchainService {
     const amount = winnerList.map((item) => item.amount.toString());
     //new script
     const { address } = web3.eth.accounts.wallet.add(privateKey);
-    const tx = await contract.methods.setWinner(poolID, winner, amount).send({
-      from: address,
-    });
+    try {
+      const tx = await contract.methods.setWinner(poolID, winner, amount).send({
+        from: address,
+      });
+    } catch (e) {
+      console.log(`set winner for pool ${poolID} failed`);
+    }
   }
 
   async leaderboardCalculator(poolID: number) {
@@ -410,9 +414,7 @@ export class BlockchainService {
   async getWinners(poolID) {
     const pool = await this.poolRepository.findOne({ poolID });
     if (!pool) {
-      return {
-        message: 'Invalid Pool Id',
-      };
+      throw new NotFoundException();
     }
     if (pool.closePrice.length === 0) {
       return {
