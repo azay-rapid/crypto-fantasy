@@ -371,6 +371,9 @@ export class BlockchainService {
         'winners',
         'tokenAddress',
       ],
+      order: {
+        _id: -1,
+      },
     });
     return pools;
   }
@@ -380,6 +383,7 @@ export class BlockchainService {
     const pools = await this.poolRepository.find({
       where: { startTime: { $gt: currTime } },
       select: ['poolID', 'entryFees', 'startTime', 'endTime', 'tokenAddress'],
+      order: { _id: -1 },
     });
     return pools;
   }
@@ -402,6 +406,9 @@ export class BlockchainService {
         'endTime',
         'openPrice',
       ],
+      order: {
+        _id: -1,
+      },
     });
 
     return pools;
