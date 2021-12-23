@@ -8,6 +8,11 @@ export const ABI = [
       },
       {
         internalType: 'uint256',
+        name: '_fee',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
         name: '_minimumTokenBalance',
         type: 'uint256',
       },
@@ -205,7 +210,20 @@ export const ABI = [
     ],
     name: 'enterPool',
     outputs: [],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'fee',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -393,6 +411,19 @@ export const ABI = [
       },
     ],
     name: 'setAuth',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_fee',
+        type: 'uint256',
+      },
+    ],
+    name: 'setFee',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
