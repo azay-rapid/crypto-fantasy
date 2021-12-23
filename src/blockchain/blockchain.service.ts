@@ -158,9 +158,10 @@ export class BlockchainService {
         .call()
         .then(async (priceData) => {
           prices.push({
+            ...TokensData.Aggregator[i],
             address: TokensData.Aggregator[i].address.toLowerCase(),
             price: priceData[1],
-            decimals: await priceFeed.methods.decimals().call(),
+            decimal: await priceFeed.methods.decimals().call(),
           });
         });
     }
@@ -374,6 +375,7 @@ export class BlockchainService {
       order: {
         _id: -1,
       },
+      take: 10,
     });
     return pools;
   }
@@ -414,8 +416,8 @@ export class BlockchainService {
     return pools;
   }
 
-  getTokensData() {
-    return TokensData;
+  async getTokensData() {
+    return await this.getCurrentTokenPrices();
   }
 
   async getWinners(poolID) {
