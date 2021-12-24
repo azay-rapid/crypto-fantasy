@@ -1,13 +1,6 @@
 export const TokensData = {
   Aggregator: [
     {
-      name: 'Apple tokenized stock FTX',
-      symbol: 'AAPL',
-      pair: 'AAPL / USD',
-      decimal: '8',
-      address: '0xb7Ed5bE7977d61E83534230f3256C021e0fae0B6',
-    },
-    {
       name: 'Aave',
       symbol: 'AAVE',
       pair: 'AAVE / USD',
@@ -27,20 +20,6 @@ export const TokensData = {
       pair: 'ALPACA / USD',
       decimal: '8',
       address: '0xe0073b60833249ffd1bb2af809112c2fbf221DF6',
-    },
-    {
-      name: 'Amazon tokenized stock FTX',
-      symbol: 'AMZN',
-      pair: 'AMZN / USD',
-      decimal: '8',
-      address: '0x51d08ca89d3e8c12535BA8AEd33cDf2557ab5b2a',
-    },
-    {
-      name: 'ARK Innovation ETF tokenized stock FTX',
-      symbol: 'ARKK',
-      pair: 'ARKK / USD',
-      decimal: '8',
-      address: '0x234c7a1da64Bdf44E1B8A25C94af53ff2A199dE0',
     },
     {
       name: 'ARPA Chain',
@@ -288,20 +267,6 @@ export const TokensData = {
       address: '0x8FAf16F710003E538189334541F5D4a391Da46a0',
     },
     {
-      name: 'GameStop tokenized stock FTX',
-      symbol: 'GME',
-      pair: 'GME / USD',
-      decimal: '8',
-      address: '0x66cD2975d02f5F5cdEF2E05cBca12549B1a5022D',
-    },
-    {
-      name: 'Google tokenized stock FTX',
-      symbol: 'GOOGL',
-      pair: 'GOOGL / USD',
-      decimal: '8',
-      address: '0xeDA73F8acb669274B15A977Cb0cdA57a84F18c2a',
-    },
-    {
       name: 'Internet Computer',
       symbol: 'ICP',
       pair: 'ICP / USD',
@@ -372,13 +337,6 @@ export const TokensData = {
       address: '0x291B2983b995870779C36A102Da101f8765244D6',
     },
     {
-      name: 'Moderna tokenized stock FTX',
-      symbol: 'MRNA',
-      pair: 'MRNA / USD',
-      decimal: '8',
-      address: '0x6101F4DFBb24Cac3D64e28A815255B428b93639f',
-    },
-    {
       name: 'Monster Slayer',
       symbol: 'MS',
       pair: 'MS / USD',
@@ -393,13 +351,6 @@ export const TokensData = {
       address: '0x5D209cE1fBABeAA8E6f9De4514A74FFB4b34560F',
     },
     {
-      name: 'Netflix tokenized stock FTX',
-      symbol: 'NFLX',
-      pair: 'NFLX / USD',
-      decimal: '8',
-      address: '0x1fE6c9Bd9B29e5810c2819f37dDa8559739ebeC9',
-    },
-    {
       name: 'CryptoNijigen',
       symbol: 'NGN',
       pair: 'NGN / USD',
@@ -412,13 +363,6 @@ export const TokensData = {
       pair: 'NULS / USD',
       decimal: '8',
       address: '0xaCFBE73231d312AC6954496b3f786E892bF0f7e5',
-    },
-    {
-      name: 'NVIDIA tokenized stock FTX',
-      symbol: 'NVDA',
-      pair: 'NVDA / USD',
-      decimal: '8',
-      address: '0xea5c2Cbb5cD57daC24E26180b19a929F3E9699B8',
     },
     {
       name: 'Ontology Gas',
@@ -439,13 +383,6 @@ export const TokensData = {
       symbol: 'PAXG',
       pair: 'PAXG / USD',
       address: '0x7F8caD4690A38aC28BDA3D132eF83DB1C17557Df',
-    },
-    {
-      name: 'Pfizer tokenized stock FTX',
-      symbol: 'PFE',
-      pair: 'PFE / USD',
-      decimal: '8',
-      address: '0xe96fFdE2ba50E0e869520475ee1bC73cA2dEE326',
     },
     {
       name: 'Poseidon Network',
@@ -490,13 +427,6 @@ export const TokensData = {
       address: '0x47e01580C537Cd47dA339eA3a4aFb5998CCf037C',
     },
     {
-      name: 'SPDR S&P 500 ETF tokenized stock FTX',
-      symbol: 'SPY',
-      pair: 'SPY / USD',
-      decimal: '8',
-      address: '0xb24D1DeE5F9a3f761D286B56d2bC44CE1D02DF7e',
-    },
-    {
       name: 'SushiSwap',
       symbol: 'SUSHI',
       pair: 'SUSHI / USD',
@@ -516,20 +446,6 @@ export const TokensData = {
       pair: 'TRX / USD',
       decimal: '8',
       address: '0xF4C5e535756D11994fCBB12Ba8adD0192D9b88be',
-    },
-    {
-      name: 'Tesla tokenized stock FTX',
-      symbol: 'TSLA',
-      pair: 'TSLA / USD',
-      decimal: '8',
-      address: '0xEEA2ae9c074E87596A85ABE698B2Afebc9B57893',
-    },
-    {
-      name: 'Taiwan Semiconductor Mfg tokenized stock FTX',
-      symbol: 'TSM',
-      pair: 'TSM / USD',
-      decimal: '8',
-      address: '0x685fC5acB74CE3d5DF03543c9813C73DFCe50de8',
     },
     {
       name: 'TrueUSD',
