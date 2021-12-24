@@ -42,7 +42,7 @@ export class BlockchainService {
       reconnectOptions,
     );
     this.web3 = new Web3(ws);
-    this.CONTRACT_ADDRESS = this.configService.get('CONTRACT_ADDRESS');
+    this.CONTRACT_ADDRESS = '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC';
     this.myContract = new this.web3.eth.Contract(ABI, this.CONTRACT_ADDRESS);
     const options = {
       filter: {
@@ -289,7 +289,7 @@ export class BlockchainService {
     const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
     const account = '0x7338860D9D43645a56ad9f9E530fA31602aafb7A'; //Your account address
     const privateKey = this.configService.get('ETH_PRIVATE_KEY');
-    const contractAddress = this.configService.get('CONTRACT_ADDRESS'); // Deployed manually
+    const contractAddress = '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC'; // Deployed manually
     const contract = new web3.eth.Contract(ABI, contractAddress, {
       from: account,
       gasLimit: 3000000,
