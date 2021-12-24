@@ -131,14 +131,12 @@ export class BlockchainService {
   }
 
   async startCallback(startJob, pool) {
-    console.log('here stasrt');
     const openPrice = await this.getCurrentTokenPrices();
     await this.poolRepository.update({ poolID: pool.poolID }, { openPrice });
     startJob.stop();
   }
 
   async endCallback(endJob, pool) {
-    console.log('here end');
     const closePrice = await this.getCurrentTokenPrices();
     await this.poolRepository.update({ poolID: pool.poolID }, { closePrice });
     endJob.stop();
