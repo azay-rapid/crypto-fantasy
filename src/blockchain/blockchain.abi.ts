@@ -3,7 +3,7 @@ export const ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'auth',
+        name: '_auth',
         type: 'address',
       },
       {
@@ -34,6 +34,203 @@ export const ABI = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: 'address',
+        name: 'prevAuth',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'newAuth',
+        type: 'address',
+      },
+    ],
+    name: 'AuthAddressUpdated',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_poolID',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'position',
+        type: 'uint256',
+      },
+    ],
+    name: 'claimReward',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'entryFees',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_tokenAddress',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_startTime',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_endTime',
+        type: 'uint256',
+      },
+    ],
+    name: 'createPool',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_tokenAddress',
+        type: 'address',
+      },
+    ],
+    name: 'emergencyWitdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'withdrawAmount',
+        type: 'uint256',
+      },
+    ],
+    name: 'EmergencyWithdraw',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_poolID',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address[10]',
+        name: '_aggregatorAddress',
+        type: 'address[10]',
+      },
+    ],
+    name: 'enterPool',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'poolID',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'FeeDeducted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'prevFee',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'newFee',
+        type: 'uint256',
+      },
+    ],
+    name: 'FeeUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'FeeWithdrawn',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'prevMinimumTokenBalance',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'newMinimumTokenBalance',
+        type: 'uint256',
+      },
+    ],
+    name: 'MinimumTokenBalanceUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: 'address',
         name: 'previousOwner',
@@ -47,6 +244,38 @@ export const ABI = [
       },
     ],
     name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'poolID',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'winner',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'RewardClaimed',
     type: 'event',
   },
   {
@@ -112,6 +341,68 @@ export const ABI = [
     type: 'event',
   },
   {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_auth',
+        type: 'address',
+      },
+    ],
+    name: 'setAuth',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_fee',
+        type: 'uint256',
+      },
+    ],
+    name: 'setFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_minimumTokenBalance',
+        type: 'uint256',
+      },
+    ],
+    name: 'setminimumTokenBalance',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_poolID',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address[]',
+        name: 'winners',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256[]',
+        name: 'amount',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'setWinner',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -123,18 +414,44 @@ export const ABI = [
       {
         indexed: false,
         internalType: 'address[]',
-        name: 'winner',
+        name: 'winners',
         type: 'address[]',
       },
       {
         indexed: false,
         internalType: 'uint256[]',
-        name: 'amount',
+        name: 'amounts',
         type: 'uint256[]',
       },
     ],
-    name: 'rewardsDistributed',
+    name: 'setWinners',
     type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_tokenAddress',
+        type: 'address',
+      },
+    ],
+    name: 'withdrawFees',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
@@ -147,70 +464,6 @@ export const ABI = [
       },
     ],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_poolID',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'position',
-        type: 'uint256',
-      },
-    ],
-    name: 'claimReward',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'entryFees',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address',
-        name: '_tokenAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_startTime',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_endTime',
-        type: 'uint256',
-      },
-    ],
-    name: 'createPool',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_poolID',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address[10]',
-        name: '_aggregatorAddress',
-        type: 'address[10]',
-      },
-    ],
-    name: 'enterPool',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -397,88 +650,6 @@ export const ABI = [
   },
   {
     inputs: [],
-    name: 'renounceOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_auth',
-        type: 'address',
-      },
-    ],
-    name: 'setAuth',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_fee',
-        type: 'uint256',
-      },
-    ],
-    name: 'setFee',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_poolID',
-        type: 'uint256',
-      },
-      {
-        internalType: 'address[]',
-        name: 'winners',
-        type: 'address[]',
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'amount',
-        type: 'uint256[]',
-      },
-    ],
-    name: 'setWinner',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_minimumTokenBalance',
-        type: 'uint256',
-      },
-    ],
-    name: 'setminimumTokenBalance',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
-      },
-    ],
-    name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
     name: 'viewActivePools',
     outputs: [
       {
@@ -493,19 +664,6 @@ export const ABI = [
       },
     ],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'tokenAddress',
-        type: 'address',
-      },
-    ],
-    name: 'withdrawFees',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
 ];
