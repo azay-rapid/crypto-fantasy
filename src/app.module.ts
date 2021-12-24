@@ -5,19 +5,25 @@ import { AppService } from './app.service';
 import { BlockchainModule } from './blockchain/blockchain.module';
 import { EnteredPool } from './blockchain/entities/entered-pool.entity';
 import { Pool } from './blockchain/entities/pool.entity';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mongodb',
-      url: 'mongodb+srv://crypto:example@cluster0.944gs.mongodb.net/cryptofantasy?retryWrites=true&w=majority',
-      synchronize: true,
-      useUnifiedTopology: true,
-      entities: [Pool, EnteredPool],
-    }),
-    BlockchainModule,
     ConfigModule.forRoot(),
+    BlockchainModule,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        return {
+          type: 'mongodb',
+          url: configService.get('MONGO_URL'),
+          synchronize: true,
+          useUnifiedTopology: true,
+          entities: [Pool, EnteredPool],
+        };
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
