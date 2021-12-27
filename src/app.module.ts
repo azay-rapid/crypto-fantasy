@@ -6,6 +6,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
 import { EnteredPool } from './blockchain/entities/entered-pool.entity';
 import { Pool } from './blockchain/entities/pool.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TokenList } from './blockchain/entities/token-list.entity';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           url: configService.get('MONGO_URL'),
           synchronize: true,
           useUnifiedTopology: true,
-          entities: [Pool, EnteredPool],
+          entities: [Pool, EnteredPool, TokenList],
         };
       },
     }),

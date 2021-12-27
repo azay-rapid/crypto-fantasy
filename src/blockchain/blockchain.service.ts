@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { ABI, AggregatorV3InterfaceABI } from './blockchain.abi';
 import { CronJob } from 'cron';
-import { TokensData } from './tokens-list.data';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pool } from './entities/pool.entity';
 import { Repository } from 'typeorm';
@@ -13,6 +12,7 @@ import { EnteredPool } from './entities/entered-pool.entity';
 import { TokenPrice } from './entities/token-price.type';
 import { ConfigService } from '@nestjs/config';
 import { Winner } from './entities/winners.type';
+import { TokenList, TokenType } from './entities/token-list.entity';
 const Web3 = require('web3');
 
 @Injectable()
@@ -25,6 +25,8 @@ export class BlockchainService {
     @InjectRepository(Pool) private poolRepository: Repository<Pool>,
     @InjectRepository(EnteredPool)
     private enteredPoolRepository: Repository<EnteredPool>,
+    @InjectRepository(TokenList)
+    private tokenListRepository: Repository<TokenList>,
     private configService: ConfigService,
   ) {
     const reconnectOptions = {
@@ -144,11 +146,12 @@ export class BlockchainService {
 
   async getCurrentTokenPrices() {
     const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
+    const Aggregator = await this.tokenListRepository.find();
     const prices: TokenPrice[] = [];
-    for (let i = 0; i < TokensData.Aggregator.length; i++) {
+    for (let i = 0; i < Aggregator.length; i++) {
       const priceFeed = new web3.eth.Contract(
         AggregatorV3InterfaceABI,
-        TokensData.Aggregator[i]['address'],
+        Aggregator[i]['address'],
       );
 
       await priceFeed.methods
@@ -156,8 +159,8 @@ export class BlockchainService {
         .call()
         .then(async (priceData) => {
           prices.push({
-            ...TokensData.Aggregator[i],
-            address: TokensData.Aggregator[i].address.toLowerCase(),
+            ...Aggregator[i],
+            address: Aggregator[i].address.toLowerCase(),
             price: priceData[1],
             decimal: await priceFeed.methods.decimals().call(),
           });
