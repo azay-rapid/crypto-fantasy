@@ -3,7 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ABI, AggregatorV3InterfaceABI } from './blockchain.abi';
+import {
+  ABI,
+  AggregatorV3InterfaceABI,
+  FactoryABI,
+  PairABI,
+  TokenABI,
+} from './blockchain.abi';
 import { CronJob } from 'cron';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pool } from './entities/pool.entity';
@@ -13,6 +19,7 @@ import { TokenPrice } from './entities/token-price.type';
 import { ConfigService } from '@nestjs/config';
 import { Winner } from './entities/winners.type';
 import { TokenList, TokenType } from './entities/token-list.entity';
+import { TokenDTO } from './dto/token.dto';
 const Web3 = require('web3');
 
 @Injectable()
@@ -147,24 +154,59 @@ export class BlockchainService {
   async getCurrentTokenPrices() {
     const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
     const Aggregator = await this.tokenListRepository.find();
+
     const prices: TokenPrice[] = [];
     for (let i = 0; i < Aggregator.length; i++) {
       const priceFeed = new web3.eth.Contract(
         AggregatorV3InterfaceABI,
         Aggregator[i]['address'],
       );
-
-      await priceFeed.methods
-        .latestRoundData()
-        .call()
-        .then(async (priceData) => {
-          prices.push({
-            ...Aggregator[i],
-            address: Aggregator[i].address.toLowerCase(),
-            price: priceData[1],
-            decimal: await priceFeed.methods.decimals().call(),
+      try {
+        await priceFeed.methods
+          .latestRoundData()
+          .call()
+          .then(async (priceData) => {
+            prices.push({
+              ...Aggregator[i],
+              address: Aggregator[i].address.toLowerCase(),
+              price: priceData[1],
+              decimal: await priceFeed.methods.decimals().call(),
+            });
           });
+      } catch (error) {
+        const factoryContract = new web3.eth.Contract(
+          FactoryABI,
+          '0xca143ce32fe78f1f7019d7d551a6402fc5350c73',
+        );
+        const BNB = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c';
+        const tokenX = Aggregator[i]['address'];
+        const pairAddress = await factoryContract.methods
+          .getPair(tokenX, BNB)
+          .call();
+        const token = new web3.eth.Contract(TokenABI, tokenX);
+        const tokenDecimal = await token.methods.decimals().call();
+        const pairInstance = new web3.eth.Contract(PairABI, pairAddress);
+        const data = await pairInstance.methods.getReserves().call();
+        let price1 = 0;
+        if (BNB > tokenX) {
+          price1 = data[1] / 10 ** 18 / (data[0] / 10 ** tokenDecimal);
+        } else {
+          price1 = data[0] / 10 ** 18 / (data[1] / 10 ** tokenDecimal);
+        }
+        const priceFeed = new web3.eth.Contract(
+          AggregatorV3InterfaceABI,
+          '0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE',
+        );
+        const priceData = await priceFeed.methods.latestRoundData().call();
+        const priceInUSD = price1 * (priceData[1] / 10 ** 8);
+        console.log(priceInUSD);
+        prices.push({
+          ...Aggregator[i],
+          address: Aggregator[i].address.toLowerCase(),
+          price: priceInUSD.toString(),
+          decimal: 0,
         });
+      }
     }
 
     return prices;
@@ -211,18 +253,18 @@ export class BlockchainService {
     await this.transactBalance(poolID, winners);
   }
 
-  calculateScore(addresses, poolOpenPrice, poolClosePrice) {
+  private calculateScore(addresses, poolOpenPrice, poolClosePrice) {
     let score = 0;
     for (let i = 0; i < 10; ++i) {
-      const a = BigInt(poolOpenPrice[addresses[i].toLowerCase()]);
-      const b = BigInt(poolClosePrice[addresses[i].toLowerCase()]);
-      const c = BigInt(10000);
+      const a = parseFloat(poolOpenPrice[addresses[i].toLowerCase()]);
+      const b = parseFloat(poolClosePrice[addresses[i].toLowerCase()]);
+      const c = 10000;
       score += Number(((b - a) * c) / a);
     }
     return score;
   }
 
-  distributePrice(participants, totalPoolAmount) {
+  private distributePrice(participants, totalPoolAmount) {
     if (participants.length === 0) return [];
     const priceShare = [
       [70, 30],
@@ -288,7 +330,7 @@ export class BlockchainService {
     return distribute(priceShare[0]);
   }
 
-  async transactBalance(poolID: number, winnerList: Winner[]) {
+  private async transactBalance(poolID: number, winnerList: Winner[]) {
     const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
     const account = '0x7338860D9D43645a56ad9f9E530fA31602aafb7A'; //Your account address
     const privateKey = this.configService.get('ETH_PRIVATE_KEY');
@@ -446,5 +488,44 @@ export class BlockchainService {
       };
     }
     return pool.winners;
+  }
+
+  private async validateToken(address) {
+    const web3 = new Web3(this.configService.get('WEB3_HTTP_PROVIDER'));
+    const factoryConntract = new web3.eth.Contract(
+      FactoryABI,
+      '0xca143ce32fe78f1f7019d7d551a6402fc5350c73',
+    );
+    const BNB = '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc0958';
+    const tokenX = address;
+    const pairAddress = await factoryConntract.methods
+      .getPair(tokenX, BNB)
+      .call();
+    if (pairAddress == '0x0000000000000000000000000000000000000000') {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  async addToken(tokenDTO: TokenDTO) {
+    const t = await this.tokenListRepository.find({
+      address: tokenDTO.address.toLowerCase(),
+    });
+    if (t.length > 0) {
+      throw new BadRequestException('Token already exists!');
+    }
+    if (!this.validateToken(tokenDTO.address)) {
+      throw new BadRequestException('Invalid token address');
+    }
+    const token = this.tokenListRepository.create({
+      ...tokenDTO,
+      address: tokenDTO.address.toLowerCase(),
+      type: TokenType.CUST,
+    });
+
+    await this.tokenListRepository.save(token);
+
+    return token;
   }
 }

@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { BlockchainService } from './blockchain.service';
+import { TokenDTO } from './dto/token.dto';
 
 @Controller('/blockchain')
 export class BlockchainController {
@@ -32,5 +33,10 @@ export class BlockchainController {
   @Get('/tokens')
   tokens() {
     return this.blockchainService.getTokensData();
+  }
+
+  @Post('/token')
+  addToken(@Body() tokenDTO: TokenDTO) {
+    return this.blockchainService.addToken(tokenDTO);
   }
 }
