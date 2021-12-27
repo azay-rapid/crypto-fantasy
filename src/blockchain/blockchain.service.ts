@@ -358,6 +358,19 @@ export class BlockchainService {
     return participants;
   }
 
+  async getPlayersCount(poolID: number) {
+    return await this.enteredPoolRepository.count({ poolID });
+  }
+
+  async fillPlayersCount(pools: Pool[]) {
+    return await Promise.all(
+      pools.map(async (pool) => ({
+        ...pool,
+        playerCount: await this.getPlayersCount(pool.poolID),
+      })),
+    );
+  }
+
   async getEndedPools() {
     const currTime = Math.floor(Date.now() / 1000);
     const pools = await this.poolRepository.find({
@@ -375,7 +388,8 @@ export class BlockchainService {
       },
       take: 10,
     });
-    return pools;
+
+    return await this.fillPlayersCount(pools);
   }
 
   async getUpcomingPools() {
@@ -385,7 +399,7 @@ export class BlockchainService {
       select: ['poolID', 'entryFees', 'startTime', 'endTime', 'tokenAddress'],
       order: { _id: -1 },
     });
-    return pools;
+    return await this.fillPlayersCount(pools);
   }
 
   async getActivePools() {
@@ -411,7 +425,7 @@ export class BlockchainService {
       },
     });
 
-    return pools;
+    return await this.fillPlayersCount(pools);
   }
 
   async getTokensData() {
