@@ -213,7 +213,7 @@ export class BlockchainService {
     for (let i = 0; i < 10; ++i) {
       const a = BigInt(poolOpenPrice[addresses[i].toLowerCase()]);
       const b = BigInt(poolClosePrice[addresses[i].toLowerCase()]);
-      const c = BigInt(1000000);
+      const c = BigInt(10000);
       score += Number(((b - a) * c) / a);
     }
     return score;
