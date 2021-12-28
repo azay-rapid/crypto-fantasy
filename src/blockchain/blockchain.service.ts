@@ -348,7 +348,7 @@ export class BlockchainService {
         from: address,
       });
     } catch (e) {
-      console.log(`set winner for pool ${poolID} failed`);
+      console.log(`set winner for pool ${poolID} failed!`);
     }
   }
 
