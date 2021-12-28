@@ -161,7 +161,7 @@ export class BlockchainService {
         AggregatorV3InterfaceABI,
         Aggregator[i]['address'],
       );
-      try {
+      if (Aggregator[i].type === TokenType.AGGR) {
         await priceFeed.methods
           .latestRoundData()
           .call()
@@ -173,7 +173,7 @@ export class BlockchainService {
               decimal: await priceFeed.methods.decimals().call(),
             });
           });
-      } catch (error) {
+      } else {
         const factoryContract = new web3.eth.Contract(
           FactoryABI,
           '0xca143ce32fe78f1f7019d7d551a6402fc5350c73',
@@ -199,7 +199,6 @@ export class BlockchainService {
         );
         const priceData = await priceFeed.methods.latestRoundData().call();
         const priceInUSD = price1 * (priceData[1] / 10 ** 8);
-        console.log(priceInUSD);
         prices.push({
           ...Aggregator[i],
           address: Aggregator[i].address.toLowerCase(),
