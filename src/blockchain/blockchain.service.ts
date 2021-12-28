@@ -128,15 +128,6 @@ export class BlockchainService {
       .on('error', (err) => {
         throw err;
       });
-
-    //rewardsDistributed
-    // this.myContract.events
-    //   .rewardsDistributed(options)
-    //   .on('data', (event) => console.log(event))
-    //   .on('changed', (changed) => console.log(changed))
-    //   .on('error', (err) => {
-    //     throw err;
-    //   });
   }
 
   async startCallback(startJob, pool) {
