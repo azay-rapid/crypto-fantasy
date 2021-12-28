@@ -509,15 +509,17 @@ export class BlockchainService {
   }
 
   async addToken(tokenDTO: TokenDTO) {
-    const t = await this.tokenListRepository.find({
-      address: tokenDTO.address.toLowerCase(),
-    });
-    if (t.length > 0) {
-      throw new BadRequestException('Token already exists!');
-    }
     if (!this.validateToken(tokenDTO.address)) {
       throw new BadRequestException('Invalid token address');
     }
+
+    const t = await this.tokenListRepository.findOne({
+      address: tokenDTO.address.toLowerCase(),
+    });
+    if (t) {
+      return t;
+    }
+
     const token = this.tokenListRepository.create({
       ...tokenDTO,
       address: tokenDTO.address.toLowerCase(),
