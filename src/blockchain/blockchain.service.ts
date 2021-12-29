@@ -86,16 +86,16 @@ export class BlockchainService implements OnModuleInit {
 
   async startListeningEvents() {
     const web3Connect = new Web3(this.web3SocketConnection);
-    const CONTRACT_ADDRESS = '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC';
+    const CONTRACT_ADDRESS = '0x096a5c3A871B33C77d1Bf57807F9076459AEC45d';
     this.myContract = new web3Connect.eth.Contract(
       ABI,
-      '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC',
+      '0x096a5c3A871B33C77d1Bf57807F9076459AEC45d',
     );
     const options = {
       filter: {
         value: [],
       },
-      fromBlock: 13880442,
+      fromBlock: 'latest',
     };
 
     // this.myContract.getPastEvents('poolCreated', options, (err, event) => {
@@ -104,7 +104,6 @@ export class BlockchainService implements OnModuleInit {
     // });
     //PoolCreated Event
     this.myContract.events.poolCreated(options).on('data', async (event) => {
-      console.log('here');
       console.log(event);
       //save the event to db
       const { poolID, entryFees, startTime, endTime, tokenAddress } =
@@ -491,7 +490,6 @@ export class BlockchainService implements OnModuleInit {
         $and: [
           { startTime: { $lt: currTime } },
           { endTime: { $gt: currTime } },
-          { 'openPrice.1': { $exists: true } },
         ],
       },
       select: [
