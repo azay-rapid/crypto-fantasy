@@ -57,31 +57,30 @@ export class BlockchainService {
       filter: {
         value: [],
       },
-      fromBlock: 'latest',
+      fromBlock: 13880442,
     };
 
     //PoolCreated Event
-    this.myContract.events
-      .poolCreated(options)
-      .on('data', async (event) => {
-        console.log(event.returnValues);
-        //save the event to db
-        const { poolID, entryFees, startTime, endTime, tokenAddress } =
-          event.returnValues;
+    this.myContract.events.poolCreated(options).on('data', async (event) => {
+      console.log(event.returnValues);
+      //save the event to db
+      const { poolID, entryFees, startTime, endTime, tokenAddress } =
+        event.returnValues;
 
-        const pool = this.poolRepository.create({
-          poolID: parseInt(poolID),
-          entryFees: parseInt(entryFees),
-          startTime: parseInt(startTime),
-          endTime: parseInt(endTime),
-          tokenAddress,
-          openPrice: [],
-          closePrice: [],
-          winners: [],
-        });
-        await this.poolRepository.save(pool);
-
-        const startJob = new CronJob(
+      const pool = this.poolRepository.create({
+        poolID: parseInt(poolID),
+        entryFees: parseInt(entryFees),
+        startTime: parseInt(startTime),
+        endTime: parseInt(endTime),
+        tokenAddress,
+        openPrice: [],
+        closePrice: [],
+        winners: [],
+      });
+      await this.poolRepository.save(pool);
+      let startJob, endJob;
+      try {
+        startJob = new CronJob(
           new Date(parseInt(event.returnValues.startTime) * 1000),
           () => {
             this.startCallback(startJob, pool);
@@ -90,8 +89,12 @@ export class BlockchainService {
           true,
           'Asia/Kolkata',
         );
+      } catch (e) {
+        console.log(`Error: Pool ${poolID} has start date from past!`);
+      }
 
-        const endJob = new CronJob(
+      try {
+        endJob = new CronJob(
           new Date(parseInt(event.returnValues.endTime) * 1000),
           async () => {
             await this.endCallback(endJob, pool);
@@ -101,33 +104,25 @@ export class BlockchainService {
           true,
           'Asia/Kolkata',
         );
-
-        startJob.start();
-        endJob.start();
-      })
-      .on('changed', (changed) => console.log('changed', changed))
-      .on('error', (err) => {
-        throw err;
-      });
+      } catch (e) {
+        console.log(`Error: Pool ${poolID} has end date from past!`);
+      }
+      if (startJob) startJob.start();
+      if (startJob && endJob) endJob.start();
+    });
 
     //Entered Pool
-    this.myContract.events
-      .enteredPool(options)
-      .on('data', async (event) => {
-        const { user, aggregatorAddress, poolID } = event.returnValues;
-        const addr = aggregatorAddress.map((addr) => addr.toLowerCase());
-        const enteredPool = this.enteredPoolRepository.create({
-          user,
-          aggregatorAddress: addr,
-          poolID: parseInt(poolID),
-        });
-
-        await this.enteredPoolRepository.save(enteredPool);
-      })
-      .on('changed', (changed) => console.log(changed))
-      .on('error', (err) => {
-        throw err;
+    this.myContract.events.enteredPool(options).on('data', async (event) => {
+      const { user, aggregatorAddress, poolID } = event.returnValues;
+      const addr = aggregatorAddress.map((addr) => addr.toLowerCase());
+      const enteredPool = this.enteredPoolRepository.create({
+        user,
+        aggregatorAddress: addr,
+        poolID: parseInt(poolID),
       });
+
+      await this.enteredPoolRepository.save(enteredPool);
+    });
   }
 
   async startCallback(startJob, pool) {
