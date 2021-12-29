@@ -86,16 +86,16 @@ export class BlockchainService implements OnModuleInit {
 
   async startListeningEvents() {
     const web3Connect = new Web3(this.web3SocketConnection);
-    const CONTRACT_ADDRESS = '0x096a5c3A871B33C77d1Bf57807F9076459AEC45d';
+    const CONTRACT_ADDRESS = '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC';
     this.myContract = new web3Connect.eth.Contract(
       ABI,
-      '0x096a5c3A871B33C77d1Bf57807F9076459AEC45d',
+      '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC',
     );
     const options = {
       filter: {
         value: [],
       },
-      fromBlock: 'latest',
+      fromBlock: 13899429,
     };
 
     // this.myContract.getPastEvents('poolCreated', options, (err, event) => {
