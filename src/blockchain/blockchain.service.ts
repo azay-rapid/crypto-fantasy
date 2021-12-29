@@ -66,8 +66,11 @@ export class BlockchainService {
       //save the event to db
       const { poolID, entryFees, startTime, endTime, tokenAddress } =
         event.returnValues;
-
-      const pool = this.poolRepository.create({
+      let pool = await this.poolRepository.findOne({
+        poolID: parseInt(poolID),
+      });
+      if (pool) return;
+      pool = this.poolRepository.create({
         poolID: parseInt(poolID),
         entryFees: parseInt(entryFees),
         startTime: parseInt(startTime),
