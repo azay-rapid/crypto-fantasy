@@ -95,7 +95,7 @@ export class BlockchainService implements OnModuleInit {
       filter: {
         value: [],
       },
-      fromBlock: 13899429,
+      fromBlock: 'latest',
     };
 
     // this.myContract.getPastEvents('poolCreated', options, (err, event) => {
