@@ -5,7 +5,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const whitelist = [
     'http://localhost:3000',
-    'https://master.d3sg8fr1hdgwhn.amplifyapp.com/',
+    'https://master.d3sg8fr1hdgwhn.amplifyapp.com',
   ];
   app.enableCors({
     origin: function (origin, callback) {
