@@ -40,7 +40,7 @@ export class BlockchainService {
       // Enable auto reconnection
       reconnect: {
         auto: true,
-        delay: 5000, // ms
+        delay: 10000, // ms
         maxAttempts: 9999999999,
         onTimeout: true,
       },
