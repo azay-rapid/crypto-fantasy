@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import {
   ABI,
@@ -23,10 +24,9 @@ import { TokenDTO } from './dto/token.dto';
 const Web3 = require('web3');
 
 @Injectable()
-export class BlockchainService {
+export class BlockchainService implements OnModuleInit {
+  private web3SocketConnection;
   private web3;
-  private subscription;
-  private CONTRACT_ADDRESS;
   private myContract;
   constructor(
     @InjectRepository(Pool) private poolRepository: Repository<Pool>,
@@ -35,24 +35,62 @@ export class BlockchainService {
     @InjectRepository(TokenList)
     private tokenListRepository: Repository<TokenList>,
     private configService: ConfigService,
-  ) {
+  ) {}
+  async onModuleInit() {
+    this.initiatewebSocket();
+  }
+
+  async initiatewebSocket() {
     const reconnectOptions = {
-      // Enable auto reconnection
+      timeout: 30000,
+      clientConfig: {
+        maxReceivedFrameSize: 100000000,
+        maxReceivedMessageSize: 100000000,
+        keepalive: true,
+        keepaliveInterval: -1,
+      },
+
       reconnect: {
         auto: true,
-        delay: 10000, // ms
-        maxAttempts: 9999999999,
+        delay: 5000, // ms
+        maxAttempts: 99999999,
         onTimeout: true,
       },
     };
-
-    const ws = new Web3.providers.WebsocketProvider(
+    const that = this;
+    this.web3SocketConnection = new Web3.providers.WebsocketProvider(
       this.configService.get('WEB3_WSS_PROVIDER'),
       reconnectOptions,
     );
-    this.web3 = new Web3(ws);
-    this.CONTRACT_ADDRESS = '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC';
-    this.myContract = new this.web3.eth.Contract(ABI, this.CONTRACT_ADDRESS);
+
+    this.web3SocketConnection.on('connect', () => {
+      console.log('! provider connected'); // <- fires after successful connection
+      this.startListeningEvents();
+    });
+
+    this.web3SocketConnection.on('error', function (err) {
+      console.log('~ on-error:', err); // <- never fires
+      that.initiatewebSocket();
+    });
+
+    this.web3SocketConnection.on('end', async (err) => {
+      console.log('~ on-end:', err); // <- never fires
+      that.initiatewebSocket();
+    });
+
+    this.web3SocketConnection.on('close', (event) => {
+      console.log('~ on-close:', event); // <- never fires
+      that.initiatewebSocket();
+    });
+  }
+
+  async startListeningEvents() {
+    const web3Connect = new Web3(this.web3SocketConnection);
+    const CONTRACT_ADDRESS = '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC';
+    this.myContract = new web3Connect.eth.Contract(
+      ABI,
+      '0x36324bB60e8A52EdDEAf54c18e05b0Ba29F4C0eC',
+    );
     const options = {
       filter: {
         value: [],
@@ -60,9 +98,14 @@ export class BlockchainService {
       fromBlock: 13880442,
     };
 
+    // this.myContract.getPastEvents('poolCreated', options, (err, event) => {
+    //   if (err) return;
+    //   console.log('this', event);
+    // });
     //PoolCreated Event
     this.myContract.events.poolCreated(options).on('data', async (event) => {
-      console.log(event.returnValues);
+      console.log('here');
+      console.log(event);
       //save the event to db
       const { poolID, entryFees, startTime, endTime, tokenAddress } =
         event.returnValues;
@@ -116,9 +159,15 @@ export class BlockchainService {
 
     //Entered Pool
     this.myContract.events.enteredPool(options).on('data', async (event) => {
+      console.log(event);
       const { user, aggregatorAddress, poolID } = event.returnValues;
+      let enteredPool = await this.enteredPoolRepository.findOne({
+        user,
+        poolID: parseInt(poolID),
+      });
+      if (enteredPool) return;
       const addr = aggregatorAddress.map((addr) => addr.toLowerCase());
-      const enteredPool = this.enteredPoolRepository.create({
+      enteredPool = this.enteredPoolRepository.create({
         user,
         aggregatorAddress: addr,
         poolID: parseInt(poolID),
@@ -405,7 +454,7 @@ export class BlockchainService {
   }
 
   async getEndedPools() {
-    const currTime = Math.floor(Date.now() / 1000);
+    const currTime = Math.floor(Date.now() / 1000 - 300);
     const pools = await this.poolRepository.find({
       where: { endTime: { $lt: currTime } },
       select: [
