@@ -292,8 +292,14 @@ export class BlockchainService implements OnModuleInit {
   private calculateScore(addresses, poolOpenPrice, poolClosePrice) {
     let score = 0;
     for (let i = 0; i < 10; ++i) {
-      const a = parseFloat(poolOpenPrice[addresses[i].toLowerCase()]);
-      const b = parseFloat(poolClosePrice[addresses[i].toLowerCase()]);
+      const open = poolOpenPrice[addresses[i].toLowerCase()];
+      const close = poolClosePrice[addresses[i].toLowerCase()];
+      if (!open || !close) continue;
+      const a = parseFloat(open);
+      const b = parseFloat(close);
+      if (isNaN(a) || isNaN(b)) {
+        continue;
+      }
       const c = 10000;
       score += Number(((b - a) * c) / a);
     }
