@@ -555,7 +555,10 @@ export class BlockchainService implements OnModuleInit {
     }
 
     const t = await this.tokenListRepository.findOne({
-      address: tokenDTO.address.toLowerCase(),
+      where: [
+        { address: tokenDTO.address.toLowerCase() },
+        { symbol: tokenDTO.symbol.toUpperCase() },
+      ],
     });
     if (t) {
       return t;
